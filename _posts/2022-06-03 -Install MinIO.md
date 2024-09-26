@@ -4,7 +4,7 @@ title:      高性能对象存储MinIO
 subtitle:   
 date:       2022-06-03
 author:     Deng You
-header-img: img/post-bg-minio.jpg
+header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
     - Minio
