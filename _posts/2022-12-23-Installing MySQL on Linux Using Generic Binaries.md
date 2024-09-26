@@ -18,6 +18,7 @@ tags:
 ### mysql 8.0 安装
 > [官网](https://dev.mysql.com/doc/refman/8.4/en/binary-installation.html): `https://dev.mysql.com/doc/refman/8.4/en/binary-installation.html`
 
+
 - 安装准备
 
 ```shell
@@ -247,6 +248,7 @@ ERROR 2059 (HY000): Authentication plugin 'caching_sha2_password' cannot be load
 解决数据库服务升级后，用户密码加密插件影响连接建立问题，可以采取下面两种方案之一： 
 1. 运维侧：替换原有默认密码加密插件，更换为历史版本加密插件为mysql_native_passwordl
 2. 开发侧：替换客户端连接数据库服务端的驱动程序软件，使之兼容新版本加密插件功能
+
 ```shell
 # 1. 创建用户时指定密码插件
 mysql> create user dengyouf@'%' identified with mysql_native_password by 'dengyouf123';
