@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      高性能对象存储MinIO
+title:      MinIO Object Storage for Linux
 subtitle:   
 date:       2022-06-03
 author:     Deng You
