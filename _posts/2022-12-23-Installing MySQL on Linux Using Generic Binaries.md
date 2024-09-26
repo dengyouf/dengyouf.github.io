@@ -17,6 +17,7 @@ tags:
 
 ### mysql 8.0 安装
 > [官网](https://dev.mysql.com/doc/refman/8.4/en/binary-installation.html): `https://dev.mysql.com/doc/refman/8.4/en/binary-installation.html`
+
 - 安装准备
 
 ```shell
@@ -49,6 +50,7 @@ EOF
 ```
 
 - 获取软件包
+
 ```shell
 # 1. 查看系统 glibc 版本
 ~]# getconf GNU_LIBC_VERSION
@@ -58,6 +60,7 @@ glibc 2.17
 ```
 
 - 解压安装
+
 ```shell
 # 1. 添加 mysql用户 
 ~]# useradd  mysql
@@ -72,6 +75,7 @@ glibc 2.17
 ~]# chown -R  mysql. /data/apps/mysql*
 ```
 - 配置环境变量
+
 ```shell
 cat  >> /etc/profile.d/tools.sh <<EOF
 PATH=$PATH:/data/apps/mysql/bin/
@@ -92,6 +96,7 @@ source  /etc/profile.d/tools.sh
 ```
 
 - 提供配置文件`my.cnf`
+
 ```shell
 cat > /etc/my.cnf <<EOF
 [mysql]
@@ -102,6 +107,13 @@ user=mysql
 basedir=/data/apps/mysql
 datadir=/data/apps/mysql/data
 socket=/data/apps/mysql/data/mysql.sock
+general_log = 1
+general_log_file =  /data/apps/mysql/logs/general.log
+log_error = /data/apps/mysql/logs/error.log
+log_timestamps=SYSTEM
+log-bin = /data/apps/mysql/logs/mysql-bin
+server_id=225
+default_authentication_plugin=mysql_native_password
 EOF
 ```
 
@@ -213,6 +225,7 @@ mysql> flush privileges
 ### 8.0 vs 5.新特性
 
 - 创建用户并授权区别
+
 ```shell
 # mysql 5.7 可以通过一条命令实现用户创建并授权
 mysql>  grant all on mydb.* to app@'%' identified by 'app123';
@@ -222,6 +235,7 @@ mysql> grant all on mydb.* to  app@'%';
 ```
 
 - 密码插件区别
+
 ```shell
 # 使用早期版本的mysql客户端连接 8.0的数据库会报错，原因就是密码插件不一致导致的
 #  mysql 8.0 的密码插件为： caching_sha2_password ， show variables like '%default_authentication_plugin%
@@ -244,7 +258,9 @@ mysql> alter user app@'%'  identified with mysql_native_password by 'app123';
 [mysqld]
 default_authentication_plugin=mysql_native_password
 ```
+
 - 用户的role支持，实现批量授权
+
 ```shell
 # 1. 创建2个role信息, 
 # - app_rw具有读写修改删除等权限， 
