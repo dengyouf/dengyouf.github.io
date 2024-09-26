@@ -4,7 +4,7 @@ title:      MinIO Object Storage for Linux
 subtitle:   
 date:       2022-06-03
 author:     Deng You
-header-img: img/post-bg-rwd.jpg
+header-img: img/post-bg-minio.jpg
 catalog: true
 tags:
     - minio
