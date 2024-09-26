@@ -1,5 +1,3 @@
-
-
 ---
 layout:     post
 title:      Installing MySQL on Linux Using Generic Binaries
