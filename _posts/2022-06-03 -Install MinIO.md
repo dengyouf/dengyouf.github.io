@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      高性能对象存储MinIO
-subtitle:   高性能对象存储MinIO入门
+subtitle:   
 date:       2022-06-03
 author:     Deng You
 header-img: img/post-bg-minio.jpg
