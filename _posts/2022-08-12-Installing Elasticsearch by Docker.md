@@ -4,10 +4,10 @@ title:      Installing Elasticsearch by Docker
 subtitle:   
 date:       2022-08-12
 author:     Deng You
-header-img: img/post-bg-es.jpg
+header-img: img/machine-leaining.jpg
 catalog: true
 tags:
-    - minio
+    - elastic
 ---
 
 ## 一、Elasticsearch 简介
