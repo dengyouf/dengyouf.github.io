@@ -811,7 +811,6 @@ class A:
     def get_x(self):
         return self.x
 
-
 a = A(5)
 
 class A:
@@ -828,6 +827,7 @@ a = A(5)
 >>> delattr(a, 'x')
 >>> hasattr(a, 'x')
 False
+
 >>> a.x
 ---------------------------------------------------------------------------
 AttributeError                            Traceback (most recent call last)
@@ -836,6 +836,9 @@ Cell In[453], line 1
 
 AttributeError: 'A' object has no attribute 'x'
 ```
+
+###  描述器
+
 
 
 
