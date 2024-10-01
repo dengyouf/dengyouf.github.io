@@ -4,7 +4,7 @@ title:      Class and Object for Python
 subtitle:   
 date:       2024-09-30
 author:     Deng You
-header-img: img/post-bg-minio.jpg
+header-img: img/post-bg-github-cup.jpg
 catalog: true
 tags:
     - python
@@ -146,8 +146,7 @@ class Bclass:
 - 通过类访问私有属性：`Bclass._Bclass__private_cls_var`
 
 ```python
-Bclass.__dict__
-输出:
+>>> Bclass.__dict__
 mappingproxy({'__module__': '__main__',
               '_Bclass__private_cls_var': 'private cls var',
               '__init__': <function __main__.Bclass.__init__(self)>,
@@ -163,14 +162,22 @@ mappingproxy({'__module__': '__main__',
 
 ```python
 b = Bclass()
-b.__dict__
-输出如下：
+
+>>> b.__dict__
 {'_Bclass__private_instance_var': 'private instance var'}
 ```
 
 ###  继承
 
 Python3 中所有类继承自 object，子类获取父类的一些方法和属性。
+
+- 定义
+```python
+class A: # 父类
+    pass
+class B(A): # 子类/派生类
+    pass 
+```
 
 - 类/实例的变量都可以继承，但是私有变量除外
 - 类/实例的方法都可以继承，但是私有变量除外
@@ -240,7 +247,7 @@ class TomCat(Cat):
         super(TomCat, self).p() # 调用父类
         # 同上等价
         super(__class__, self).p()
-        super(Cat, self).p() # 调用祖先类
+        super(Cat, self).p() # 调用祖先类, 跨类调用
 ```
 
 父类定义了 `__init__` 方法时，子类要显示的定义初始化方法，并且要在初始化方法里面初始化父类
@@ -283,6 +290,299 @@ class Cat(Animal):
         # print(super().x)
         print(super().__dict__['x'])
 ```
+
+### 多继承
+
+- 定义
+
+```python
+class A:
+    def p(self):
+        print(
+            
+            'A')
+class B:
+    def p(self):
+        print('B')
+class C(A,B):
+    pass
+```
+- 方法解析顺序MRO
+
+多继承中，父类继承的顺序不一样，最后的结果也会有差异，例如对于类`C(A,B)`与 类`C(B,A)`，其实例 `c.p`调用结果完全不同，这是MRO导致的，MRO使用C3算法实现。C3 算法是一种广度优先搜索算法，它可以保证满足多重继承的方法解析顺序。
+
+```python
+class C(A,B):
+    pass
+
+>>> C.__mro__
+(__main__.C, __main__.A, __main__.B, object)
+
+class C(B,A):
+    pass
+
+>>> C.__mro__
+(__main__.C, __main__.B, __main__.A, object)
+```
+
+- MRO merge过程
+
+遍历序列，取出首元素（首元素需要在其他序列中存在且也是首元素, 如果存在且不是首元素，则继承就会抛出异常 `TypeError`），直到循环所有的元素。
+```python
+class C(A, B) ==>
+
+MRO(C) => [C] + merge(MRO(A), MRO(B), [A, B])
+       => [C] + merge([A, O), (B, O), (A, B)])
+       => [C, A] + merge([O], [B, O], [B])
+       => [C, A, B] + merge([O], [O])
+       => [C, A, B, O]
+```
+
+> 应该尽量避免使用多继承，以免 mro 定义类报错
+
+### Mixin
+
+Mixin 是一种组合，在python 中通过多继承的方式实现。（待补充）
+
+
+
+## 面向对象进阶
+
+方法前后带双下滑线的方法，称之为**专有方法**或**魔术方法**。
+
+### 运算符重载
+
+通过执行 help(int) ,可以查看所有可重载运算符。
+
+- 算术运算符
+- 比较运算符
+- 位运算符
+
+定义一个复数类，定义 `__add__` 和 `__sub__`专有方法，实现两个类实例之间的运算。
+
+```python
+class Complex:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        return Complex(self.x + other.x, self.y + other.y)
+        
+    def __sub__(self, other):
+        return Complex(self.x - other.x, self.y - other.y)
+    
+    def __str__(self):
+        return "<{}:{}>".format(self.x, self.y)
+
+
+c1 = Complex(2, 3)
+c2 = Complex(4, 5)
+
+new = c1+c2
+
+>>> print(new)
+<6:8>
+```
+
+定义一个Person类，实现 两个Person实例通过年龄属性进行比较
+
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __gt__(self, other): # 实现两个类之间 > 比较符号
+        return self.age > other.age
+    
+    def __lt__(self, other): # 实现两个类之间 < 比较符号
+        return self.age < other.age
+        
+    def __eq__(self, other): # 实现两个类之间 == 比较符号
+        return self.age == other.age
+```
+
+实现一个栈
+- `__len__`: 实现 len 方法
+- `__hash__`： 实现 hash方法，有这个方法的类，称为可 hash 对象
+- `__bool__`: 实现 bool 方法
+
+```python
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+        
+class Stack:
+    def __init__(self):
+        self.top = None
+        self.length = 0
+
+    def push(self, val):
+        node = Node(val)
+        node.next = self.top
+        self.top = node
+        self.length += 1
+
+    def pop(self):
+        if self.top is not None:
+            top = self.top
+            self.top = self.top.next
+            self.length -= 1
+            return top.value
+        return None
+
+    def __len__(self):
+        return self.length
+    
+    def __hash__(self):
+      return  self.top
+    
+    def __bool__(self):
+      return true
+
+s = Stack()
+s.push(1)
+s.push(2)
+
+>>> len(s)
+2
+>>> s.pop()
+1
+>>> len(s)
+1
+```
+
+### 可调用对象
+
+当一个对象实现 `__call__` 方法，这样的对象称为可调用对象。可调用对象，实际上调用的是 `__call__` 方法。可以通过内置函数 `callable` 判断一个对象是否是可调用对象。
+
+```python
+class Add:
+    def __call__(self, a, b):
+        print('{} + {}'.format(a, b))
+        return a+b
+a = Add()
+
+>>> a(2, 5)
+7
+```
+
+通过 `__call__ `方法，可实现复杂的单例类装饰器
+
+```python
+from functools import  wraps
+class Singleton:
+    def __init__(self, cls):
+        wraps(cls)(self)
+        self.instance = None
+
+    def __call__(self, *args, **kwargs):
+        if self.instance is None:
+            self.instance = self.__wrapped__(*args, **kwargs)
+        return self.instance
+
+@Singleton
+class A:
+    '''this A class'''
+    pass
+
+a = A()
+a1 = A()
+
+>>> a is a1
+True
+```
+
+```python
+import time 
+class Timeit:
+    def __init__(self, fn):
+        self.fn = fn
+
+    def __call__(self, *args, **kwargs):
+        start = time.time()
+        ret = self.fn(*args, **kwargs)
+        end = time.time()
+        print(end-start)
+        return ret
+
+@Timeit
+def sleep(n):
+    time.sleep(n)
+
+>>> sleep(3) # 等价 Timeit(sleep(3))
+3.0021469593048096
+>>> sleep.__name__
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+Cell In[317], line 1
+----> 1 sleep.__name__
+
+AttributeError: 'Timeit' object has no attribute '__name__'
+```
+
+优化 Timeit 类，实现 wraps, wraps 传递一些属性，通过`assigned=` 传递 ,具体可通过 `help(warp)` 查看
+
+```python
+import time 
+from functools import wraps
+
+class Timeit:
+    def __init__(self, fn):
+        self.wrapped = wraps(fn)(self)
+
+    def __call__(self, *args, **kwargs):
+        start = time.time()
+        ret = self.wrapped.__wrapped__(*args, **kwargs)
+        end = time.time()
+        print(end-start)
+        return ret
+
+@Timeit
+def sleep(n):
+    '''sleep some time '''
+    time.sleep(n)
+
+>>> sleep(3)
+3.0030908584594727
+>>> sleep.__doc__
+'sleep some time '
+>>> sleep.__name__
+sleep
+```
+### 对象可视化
+
+`__repr__`和`__str__`方法实现实例对象的可视化,返回字符串，增加实例的可读性。
+- `__repr__`: 返回的字符串更多的反映解释器相关的内容
+- `__str__`: 返回的字符串更接近自然语言
+
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        return '[{}:{}]'.format(self.name, self.age)
+
+    # __repr__ = __str__
+    def __repr__(self):
+        return '<{}:{}:{}:{}_{} at {}>'.format(self.__module__, self.__class__.__name__, self.name, self.age, self, hex(id(self)))
+        
+p = Person('jerry', 18)
+>>> p
+<__main__:Person:jerry:18_[jerry:18] at 0x10ef621d0>
+>>> print(p)
+[jerry:18]
+```
+
+### 上下文管理
+
+
+
+
 
 
 
