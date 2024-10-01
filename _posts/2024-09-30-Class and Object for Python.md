@@ -17,6 +17,7 @@ tags:
 - 定义
   - 新式类： `class A:`
   - 经典类：`class A(Object)`
+
 ```python
 class Aclass:
     # 类变量
@@ -205,9 +206,10 @@ class Cat(Animal):
     pass
 ```
 
-- 方法重写,子类覆盖父类的方法
+- **方法重写**
 
-super 方法返回 supper对象，可以使用 supper对象调用父类的方法，但是不能使用祖先的方法。
+方法重写,子类覆盖父类的方法，在 Python 中方法重写也算一种多态的体现。
+
 
 ```python
 class Animal:
@@ -218,6 +220,27 @@ class Cat(Animal):
     def p(self):
         print('i am cat')
         
+```
+
+- **super**
+
+super 方法返回 supper对象，可以使用 supper对象调用父类的方法
+
+```python
+class Animal:
+    def p(self):
+        print('i am animal')
+
+class Cat(Animal):
+    def p(self):
+        print('i am cat')
+
+class TomCat(Cat):
+    def p(self):
+        super(TomCat, self).p() # 调用父类
+        # 同上等价
+        super(__class__, self).p()
+        super(Cat, self).p() # 调用祖先类
 ```
 
 父类定义了 `__init__` 方法时，子类要显示的定义初始化方法，并且要在初始化方法里面初始化父类
