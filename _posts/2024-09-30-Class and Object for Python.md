@@ -171,12 +171,96 @@ b.__dict__
 
 Python3 中所有类继承自 object，子类获取父类的一些方法和属性。
 
-- 私有属性无法继承
-- 
+- 类/实例的变量都可以继承，但是私有变量除外
+- 类/实例的方法都可以继承，但是私有变量除外
 
 ```python
+class Animal:
+    public_cls_var = 'public cls var'
+    __private_cls_var = 'private cls var' # 不可继承
+    
+    def __init__(self):
+        self.a = 'A'
+        self._b = 'B'
+        self.__C = 'C' # 不可继承
 
+    def public_instance_method(self):
+        print('public instance method')
+
+    def __private_instance_method(self): # 不可继承
+        print('private instance method')
+
+    @classmethod
+    def cls_method(cls):
+        print('cls method')
+
+    @staticmethod
+    def static_method():
+        print('static  method')
+
+    def general_method():
+        print('general  method')
+        
+class Cat(Animal):
+    pass
 ```
+
+- 方法重写,子类覆盖父类的方法
+
+super 方法返回 supper对象，可以使用 supper对象调用父类的方法，但是不能使用祖先的方法。
+
+```python
+class Animal:
+    def p(self):
+        print('i am animal')
+
+class Cat(Animal):
+    def p(self):
+        print('i am cat')
+        
+```
+
+父类定义了 `__init__` 方法时，子类要显示的定义初始化方法，并且要在初始化方法里面初始化父类
+
+```python
+class Animal:
+    def __init__(self, x):
+        self.x = x
+        
+    def p(self):
+        print('i am animal')
+
+class Cat(Animal):
+    def __init__(self, y):
+        super().__init__(y)
+        
+    def p(self):
+        print('i am cat')
+        super().p() # super 方法返回 supper对象，可以使用 supper对象调用父类的方法
+        super(Animal, self).p()
+```
+
+不能使用 super 方法调用父类的变量， 要访问父类的属性需使用 `__dict__`。
+
+```python
+class Animal:
+    def __init__(self, x):
+        self.x = x
+        
+    def p(self):
+        print('i am animal')
+
+class Cat(Animal):
+    def __init__(self):
+        super().__init__(3)
+        
+    def p(self):
+        print('i am cat')
+        super().p() 
+        # print(super().x)
+        print(super().__dict__['x'])
+```
+
 
 
 
