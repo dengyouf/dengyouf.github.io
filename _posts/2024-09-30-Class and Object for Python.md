@@ -746,6 +746,7 @@ a = A(3)
 
 `getattr` 可以传入默认值，当属性不存在是，则调用 默认值，这是一种设计模式。
 - `getattr(object, name[, default]) -> value`
+
 ```python
 class WorkerInterface:
     def method1(self):
