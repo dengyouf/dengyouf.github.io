@@ -840,6 +840,94 @@ AttributeError: 'A' object has no attribute 'x'
 
 ###  描述器
 
+一个具有 __get__ 和 __set__ 方法的类就是一个描述器，IntClass 是一个描述器。描述器可用于需要控制对属性的访问、赋值，删除。描述器单独出现时无意义的，它总是和其他类一起出现，它一般**用于描述其它类属性的访问赋值和删除行为**。
+
+当一个类属性具有 `__get__` 和 `__set__` 方法的时候,当访问这个类属性时，调用的是类属性的 `__get__` ；当对类属性进行赋值时，调用`__set__` 方法。
+
+```python
+class IntClass: # 描述器
+    def __init__(self, name):
+        self.name = name 
+        
+    def __get__(self, instance, cls):
+        if instance is None: #  A.x 调用时， instance 为 None
+          return self
+        print('get')
+        return instance.__dict__[self.name]
+
+    def __set__(self, instance, value):
+        if not isinstance(value, int): # 描述器的用法，类型检查
+          raise TypeError("{} require int".format(self.name))
+        print('set')
+        instance.__dict__[self.name] = value
+        
+    def __delete__(self, instance):
+        raise TypeError("不允许删除")
+    
+class A:
+    x = IntClass('x') # 类变量， 类变量的类型为IntClass
+
+    def __init__(self, x):
+        self.x = x
+
+>>> a = A(3)
+set
+
+>>> a.x # A.x.__get__(a, A)
+get
+3
+
+>>> a.x = 15 # A.x.__get__(a, 15)
+set 
+```
+
+@property 就是由描述器实现, 自行实现代码如下。
+
+```python
+class Property:
+    def __init__(self, fget=None, fset=None, fdel=None):
+        self.fget = fget
+        self.fset = fset
+        self.fdel = fdel
+
+    def __get__(self, instance, cls):
+        if instance is None:
+            return self
+        if not callable(self.fget):
+            raise AtrributeError()
+        return self.fget(instance)
+
+    def __set_(self, instance, value):
+        if not callable(self.fset):
+            raise AtrributeError()
+        self.fset(instance, value)
+
+    def __del_(self, instance):
+        if not callable(self.fdel):
+            raise AtrributeError()
+        self.fdel(instance)
+
+    def setter(self, fset):
+        self.fset = fset
+        
+    def deleter(self, fdel):
+        self.fdel = fdel   
+
+class A:
+    def __init__(self, x):
+        self.__x = x
+
+    @Property
+    def x(self):
+        return self.__x
+    
+    # x = Property(A.x)
+    
+    @x.setter
+    def x(self, value):
+        self.__x = value
+```
+
 
 
 
