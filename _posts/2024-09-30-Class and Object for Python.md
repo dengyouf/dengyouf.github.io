@@ -51,37 +51,27 @@ a = Aclass(1, 'open')
 - 调用变量
 
 ```python
-# 通过类调用类变量
-Aclass.var
-# 通过实例调用类变量
-a.var
+Aclass.var # 通过类调用类变量
+a.var # 通过实例调用类变量
 ```
 ```python
-# 通过实例调用实例变量
-a.status
-#类无法调用实例变量，报错 AttributeError
-Aclass.var 
+a.status # 通过实例调用实例变量
+Aclass.var  #类无法调用实例变量，报错 AttributeError
 ```
 - 调用方法
 
 ```python
-# 实例调用实例方法
-a.method_of_instance()
-# 类调用实例方法，需传入实例
-Aclass.method_of_instance(a)
+a.method_of_instance() # 实例调用实例方法
+Aclass.method_of_instance(a) # 类调用实例方法，需传入实例
 ```
 
 ```python
-# 类调用类方法
-Aclass.method_of_cls()
-# 实例调用类方法
-a.method_of_cls()
+Aclass.method_of_cls() # 类调用类方法
+a.method_of_cls() # 实例调用类方法
 ```
 ```python
-#  实例调用静态方法
-a.static_method()
-# 类调用静态方法
-Aclass.static_method()
+a.static_method() #  实例调用静态方法
+Aclass.static_method() # 类调用静态方法
 ```
 
 ###  封装
@@ -580,8 +570,272 @@ p = Person('jerry', 18)
 
 ### 上下文管理
 
+类要实现上下文管理，必须实现 `__enter__` 和 `__exit__` 方法，这样就可以使用 with xx as f 的语法。
+
+进入 with 块之前执行 `__enter__` 方法， 退出with块之后，立刻执行 `__exit__`方法
+
+as 子句用于把 __enter__ 的返回值复制给 变量 f
+
+```python
+class Context:
+    def __init__(self):
+        print('1. init ')
+
+    def __enter__(self):
+        print('2. enter')
+        return 123
+        
+    def __exit__(self, *args, **kwargs):
+        print('3. exit')
+
+>>> with Context() as f:
+>>>     print(f)
+>>>     print('do somethings')
+1. init 
+2. enter
+do somethings
+3. exit
+
+```
+
+标准库 **contextlib** 实现上下文管理
+
+```python
+import contextlib
+@contextlib.contextmanager
+def test():
+    print('enter')
+    try:
+        yield 123 # 必须为 iterator 对象
+    finally:
+        print('exit')
+
+with test() as x:
+    print(x)
+```
+
+### 反射
+
+在代码中获取对象本身的一些属性，例如对象的字段，方法。例如 dir 就实现了反射。
+
+| 方法           | 说明               | 案例             | 输出      |
+|--------------|------------------|----------------|---------|
+| `__class__`  | 获取当前实例的类名        | `a.__class__`  | `__main__.A` |
+| `__dict__`   | 获取当前实例的持有的所有变量   | `a.__dict__ `  | `{'x': 3}` |
+| `__dir__`    | 获取当前实例的所有属性      | `a.__dir__()`  | 同dir(a) |
+| `__module__` | 获取当前实例所在的模块      | `a.__module__` | `'__main__'   ` |
+| `__name__`   | 获取当前类的名字，实例没有此方法 | `A.__name__`   | `'A'`   |
+| `__doc__`      | 获取当前实例的文档        | `a.__doc__`      | -  |
 
 
+```python
+class A:
+    cls_var = 'class value'
+    def __init__(self, x):
+        self.x = x
+
+    def get_x(self):
+        return self.x
+
+a = A(3)
+
+>>> dir(a)
+['__class__',
+ '__delattr__',
+ '__dict__',
+ '__dir__',
+ '__doc__',
+ '__eq__',
+ '__format__',
+ '__ge__',
+ '__getattribute__',
+ '__gt__',
+ '__hash__',
+ '__init__',
+ '__init_subclass__',
+ '__le__',
+ '__lt__',
+ '__module__',
+ '__ne__',
+ '__new__',
+ '__reduce__',
+ '__reduce_ex__',
+ '__repr__',
+ '__setattr__',
+ '__sizeof__',
+ '__str__',
+ '__subclasshook__',
+ '__weakref__',
+ 'cls_var',
+ 'get_x',
+ 'x']
+```
+
+**使用字符串操作对象的属性**
+
+- `__getattribete__`
+
+当定义`__getattribete__`方法时，不管属性存在或者不存在，都会调用 `__getattribete__`,且不管是方法还是变量，都只能通过字符串访问类的属性，否则会报错 `TypeError`。
+
+```python
+class A:
+    cls_var = 'class value'
+    def __init__(self, x):
+        self.x = x
+
+    def get_x(self):
+        return self.x
+        
+    def __getattribute__(self, name, default=None):
+        return 'getattribute proptery'
+
+a = A(3)
+
+>>> getattr(a, 'testxxx')
+'getattribute proptery'
+
+>>> a.testxxx
+'getattribute proptery'
+
+>>> a.x
+'getattribute proptery'
+
+>>> a.get_x
+'getattribute proptery'
+
+>>> a.get_x()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+Cell In[419], line 29
+     26 a.get_x
+     27 'getattribute proptery'
+---> 29 a.get_x()
+
+TypeError: 'str' object is not callable
+```
+
+- `getattr`
+
+当未定义`__getattribete__`方法时，只定义了 `__getattr__` 方法时, 属性不存在时，访问 `__getattr__` 方法, 属性存在，正常调用该属性。
+
+```python
+class A:
+    cls_var = 'class value'
+    def __init__(self, x):
+        self.x = x
+
+    def get_x(self):
+        return self.x
+
+    def __getattr__(self, name, default=None):
+        return 'missing proptery'
+
+a = A(3)
+
+>>> getattr(a, 'testxxx')
+'missing proptery'
+
+>>> a.testxxx
+'missing proptery'
+
+>>> a.x
+3
+>>> a.get_x()
+3
+```
+
+`getattr` 可以传入默认值，当属性不存在是，则调用 默认值，这是一种设计模式。
+- `getattr(object, name[, default]) -> value`
+```python
+class WorkerInterface:
+    def method1(self):
+        print('WorkerInterface 1')
+
+    def method2(self):
+        print('WorkerInterface 2')
+
+    def method3(self):
+        print('WorkerInterface 3')
+
+class WorkerImpl:
+    def method2(self):
+        print('WorkerImpl 2')
+
+interface = WorkerInterface()
+
+impl = WorkerImpl()
+
+>>> getattr(impl, 'method2', interface.method2)()
+WorkerImpl 2
+>>> getattr(impl, 'method1', interface.method1)()
+WorkerInterface 1
+```
+
+- `setattr(obj, name, value, /)`
+
+setattr 通过属性名修改属性，实际调用 `__setattr__` 方法,属性存在时修改属性值，属性不存在时，添加属性。
+
+```python
+class A:
+    cls_var = 'class value'
+    def __init__(self, x):
+        self.x = x
+
+    def get_x(self):
+        return self.x
+
+a = A(3)
+
+>>> a.x
+3
+
+>>> setattr(a, 'x', 30)
+>>> a.x
+30
+
+>>> setattr(a, 'y', 40)
+>>> a.y
+40
+```
+
+- `delattr(obj, name, /)`
+
+delattr 实际调用 `__delattr__` 方法,属性存在时删除属性值，属性不存在时，`抛出AttributeError`。
+
+```python
+class A:
+    cls_var = 'class value'
+    def __init__(self, x):
+        self.x = x
+
+    def get_x(self):
+        return self.x
+
+
+a = A(5)
+
+class A:
+    cls_var = 'class value'
+    def __init__(self, x):
+        self.x = x
+
+    def get_x(self):
+        return self.x
+
+
+a = A(5)
+
+>>> delattr(a, 'x')
+>>> hasattr(a, 'x')
+False
+>>> a.x
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+Cell In[453], line 1
+----> 1 a.x
+
+AttributeError: 'A' object has no attribute 'x'
+```
 
 
 
