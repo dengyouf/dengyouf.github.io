@@ -162,6 +162,7 @@ b = Bclass()
 Python3 中所有类继承自 object，子类获取父类的一些方法和属性。
 
 - 定义
+
 ```python
 class A: # 父类
     pass
