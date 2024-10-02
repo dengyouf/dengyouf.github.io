@@ -928,6 +928,66 @@ class A:
         self.__x = value
 ```
 
+实现类型检查版本
+
+```python
+class Typed:
+    def __init__(self, name, required_type):
+        self.name = name
+        self.required_type = required_type
+    
+    def __get__(self, instance, cls):
+        if instance is None:
+            return self
+        return instance.__dict__[self.name]
+    
+    def __set__(self, instance, value):
+        if not isinstance(value, self.required_type):
+            raise TypeError('{} required type {}'.format(self.name, self.required_type))
+        instance.__dict__[self.name] = value
+
+class A:
+    x = Typed('x', str)
+    y = Typed('y', int)
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+```
+
+python3 中使用 inspect 实现类型检查
+
+```python
+from inspect import signature
+
+class Typed:
+    def __init__(self, name, required_type):
+        self.name = name
+        self.required_type = required_type
+    
+    def __get__(self, instance, cls):
+        if instance is None:
+            return self
+        return instance.__dict__[self.name]
+    
+    def __set__(self, instance, value):
+        if not isinstance(value, self.required_type):
+            raise TypeError('{} required type {}'.format(self.name, self.required_type))
+        instance.__dict__[self.name] = value
+
+def typeassert(cls):
+    sig = signature(cls)
+    for k, v in sig.parameters.items():
+        setattr(cls, k, Typed(k, v.annotation))
+    return cls
+
+@typeassert
+class Person:
+    def __init__(self, name: str, age: int):
+        self.name = name
+        self.age = age
+```
+
 
 
 
