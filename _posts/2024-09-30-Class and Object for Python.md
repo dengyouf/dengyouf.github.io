@@ -991,7 +991,22 @@ class Person:
 
 ### 元类
 
+继承自type的类，都叫元类。在元类可以修改，重写 `__new__` 方法，改变 type的 行为。元类可以以metaclass的方式，修改类的创建过程
 
+```python
+class Meta(type): # 元类
+    def __new__(cls, name, bases, clsdict):
+        clsdict['A'] = 'this is meta'
+        return super().__new__(cls, name, bases, clsdict)
+
+class Group(metaclass=Meta): # 元类可以以metaclass的方式，修改类的创建过程
+    pass
+
+g = Group()
+
+>>> g.A
+'this is meta'
+```
 
 
 

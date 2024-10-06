@@ -4,7 +4,7 @@ title:      Installing MySQL on Linux Using Generic Binaries
 subtitle:   
 date:       2022-12-23
 author:     Deng You
-header-img: img/post-bg-mysql.jpg
+header-img: img/post-bg-mysql.jpeg
 catalog: true
 tags:
     - mysql
