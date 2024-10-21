@@ -85,7 +85,12 @@ iptables 命令管理防火墙规则可以通过 man iptable 查看，下面是�
 - 规则管理
 
 ```
-# 添加规则 黑名单-默认策略为ACCEPT
+# 查看默认规则
+~]# iptables -S
+-P INPUT ACCEPT
+-P FORWARD ACCEPT
+-P OUTPUT ACCEPT
+# 添加规则
 ~]# iptables -A INPUT -s 192.168.122.1/24 -d 192.168.122.86 -j ACCEPT
 ~]# iptables -A INPUT -s 0.0.0.0/24 -d 192.168.122.86 -j DROP
 
@@ -109,7 +114,17 @@ num   pkts bytes target     prot opt in     out     source               destina
 ~]# iptables -I  INPUT  1 -s 192.168.122.1/24 -d 192.168.122.86 -j ACCEPT
 ```
 
+### 基本匹配
 
+- `[!] -s, --source address[/mask][,...]`：指明原地址（范围）匹配；叹号表示取反
+- `[!] -d, --destination address[/mask][,...]`：目标地址匹配
+- `[!] -i, --in-interface name`：限制报文流入的接口，只能用于PREROUTING,INPUT,FORWARD链上；用于前半段
+- `[!] -o, --out-interface name`：限制报文流出的接口，只能用于OUTPUT,FORWARD,POSTROUTING链上；用于后半
+段
+- `[!] -p{tcp|udp|icmp}`：限制协议
+```
+# 
+```
 
 
 
